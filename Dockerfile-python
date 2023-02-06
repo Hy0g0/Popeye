@@ -1,0 +1,12 @@
+FROM python:3.9-alpine
+
+WORKDIR /app
+COPY /app/poll/requirements.txt /poll/requirements.txt
+
+RUN pip3 install -r /poll/requirements.txt
+COPY . /app/poll
+
+WORKDIR /app/poll
+EXPOSE 80
+
+CMD ["flask", "run", "--host=0.0.0.0", "--port=80"]

@@ -1,0 +1,53 @@
+version: '3'
+services:
+  poll:
+    build:
+      context: .
+      dockerfile: Dockerfile-python
+    ports:
+      - "5000:80"
+    networks:
+      - poll-tier
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379"
+    networks:
+      - poll-tier
+      - back-tier
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-java
+    networks:
+      - back-tier
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - result-tier
+      - back-tier 
+  result:
+    build:
+      context: .
+      dockerfile: Dockerfile-nodejs
+    ports:
+      - "5001:80"
+    networks:
+      - result-tier
+volumes:
+  db-data:
+networks:
+  poll-tier:
+    name: poll-tier
+  result-tier:
+    name: result-tier
+  back-tier:
+    name: back-tier
